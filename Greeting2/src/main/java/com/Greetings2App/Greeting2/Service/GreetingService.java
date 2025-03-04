@@ -1,9 +1,17 @@
 package com.Greetings2App.Greeting2.Service;
 
+import com.Greetings2App.Greeting2.Models.Greetings;
+import com.Greetings2App.Greeting2.Repository.GreetingRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GreetingService {
+    private final GreetingRepository greetingRepository;
+    public GreetingService (GreetingRepository greetingRepository){
+        this.greetingRepository = greetingRepository;
+
+
+    }
     public String getGreetingMessage() {
 
 
@@ -20,5 +28,17 @@ public class GreetingService {
         } else {
             return "Hello World";
 }
+
+
+    }
+
+    //UC4
+    public Greetings saveGreetingMessage(String message){
+//        String Greetings=new Greetings(message);
+        return greetingRepository.save(new Greetings(message));
 }
+
 }
+
+
+

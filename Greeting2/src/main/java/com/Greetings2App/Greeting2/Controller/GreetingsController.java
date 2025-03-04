@@ -44,5 +44,10 @@ public class GreetingsController {
 public String getGreeting(@RequestParam(required = false)String firstName,@RequestParam(required = false)String lastName){
     return greetingService.getGreetingMessage(firstName, lastName);
 }
+    //UC4
+    @PostMapping("/save")
+    public Greetings  savesGreeting(@RequestBody Greetings greetings) {
+        return greetingService.saveGreetingMessage(greetings.getMessage());
+}
 }
 
