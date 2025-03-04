@@ -49,5 +49,10 @@ public String getGreeting(@RequestParam(required = false)String firstName,@Reque
     public Greetings  savesGreeting(@RequestBody Greetings greetings) {
         return greetingService.saveGreetingMessage(greetings.getMessage());
 }
+    //UC5
+    @GetMapping("{id}")
+    public Greetings getGreetingById(@PathVariable Long id) {
+        return greetingService.getGreetingById(id);
+}
 }
 
