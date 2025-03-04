@@ -2,7 +2,10 @@ package com.Greetings2App.Greeting2.Service;
 
 import com.Greetings2App.Greeting2.Models.Greetings;
 import com.Greetings2App.Greeting2.Repository.GreetingRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
 
 @Service
@@ -53,6 +56,12 @@ public class GreetingService {
             return greetingRepository.save(greetings);
         }
         throw new RuntimeException(("Greeting with Id " + id +"notfound"));
+}
+    public void deleteGreeting(Long id){
+        if(!greetingRepository.existsById(id)){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Greeting not found");
+        }
+        greetingRepository.deleteById(id);
 }
 
 }
