@@ -61,5 +61,10 @@ public String getGreeting(@RequestParam(required = false)String firstName,@Reque
     public List<Greetings> getAllGreetings() {
         return greetingService.getAllGreetings();
 }
+//UC7
+    @PutMapping("/id/{id}")
+    public Greetings updateGreeting(@PathVariable Long id, @RequestBody Greetings greetings){
+        return greetingService.updateGreeting(id,greetings.getMessage());
+}
 }
 
