@@ -38,5 +38,11 @@ public class GreetingsController {
     public String getGreeting(){
         return greetingService.getGreetingMessage();
 }
+
+//UC3
+@GetMapping("/firstNameLastName")
+public String getGreeting(@RequestParam(required = false)String firstName,@RequestParam(required = false)String lastName){
+    return greetingService.getGreetingMessage(firstName, lastName);
+}
 }
 
