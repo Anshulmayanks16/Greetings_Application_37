@@ -4,6 +4,7 @@ import com.Greetings2App.Greeting2.Models.AuthUser;
 import com.Greetings2App.Greeting2.Service.AuthenticationService;
 import com.Greetings2App.Greeting2.UserDTO.AuthUserDTO;
 import com.Greetings2App.Greeting2.UserDTO.LoginDTO;
+import com.Greetings2App.Greeting2.UserDTO.MailDTO;
 import jakarta.validation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.Greetings2App.Greeting2.Service.EmailService;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,7 +33,9 @@ public class AuthUserController {
          return ResponseEntity.ok(authenticationService.loginUser(loginDTO));
      }
     @PostMapping(path="/sendMail")
-    public String sendMail(@RequestBody MailDTO user){ emailService.sendEmail(user.getTo(), user.getSubject(), user.getBody());
+    public String sendMail(@RequestBody MailDTO user){
+
+        EmailService.sendEmail(user.getTo(), user.getSubject(), user.getBody());
         return "Mail Sent";
     }
 }

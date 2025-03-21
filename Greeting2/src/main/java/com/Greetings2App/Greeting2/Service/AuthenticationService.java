@@ -12,21 +12,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.Greetings2App.Greeting2.Security.JWTUtil;
 
+import java.sql.SQLOutput;
 import java.util.*;
 @Service
 public class AuthenticationService {
     private final AuthUserRepository authUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
+    private final EmailService emailService;
 
-    public AuthenticationService(AuthUserRepository authUserRepository, JWTUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public AuthenticationService(AuthUserRepository authUserRepository, JWTUtil jwtUtil, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.authUserRepository = authUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     public String registerUser(AuthUserDTO authUserDTO) {
-        Optional<AuthUser> existingUser = authUserRepository.findByEmailIgnoreCase(authUserDTO.getEmail());
+        Optional<AuthUser> existingUser = authUserRepository.findByEmail(authUserDTO.getEmail());
 
         if (existingUser.isPresent()) {
             throw new RuntimeException("Email already in use");
@@ -34,33 +37,48 @@ public class AuthenticationService {
 
         AuthUser user = new AuthUser();
         user.setFirstName(authUserDTO.getFirstName());
-        user.setFirstName(authUserDTO.getLastName());
-        user.setFirstName(authUserDTO.getEmail());
+        user.setLastName(authUserDTO.getLastName()); // Fix: Using correct setter
+        user.setEmail(authUserDTO.getEmail()); // Fix: Using correct setter
         user.setPassword(passwordEncoder.encode(authUserDTO.getPassword()));
 
         authUserRepository.save(user);
         return "User registered Successfully";
-
-
     }
+
 
     public String loginUser(LoginDTO loginDTO) {
         System.out.println("Checking email: " + loginDTO.getEmail());
 
-        Optional<AuthUser> userOptional = authUserRepository.findByEmailIgnoreCase(loginDTO.getEmail());
+        Optional<AuthUser> userOptional = authUserRepository.findByEmail(loginDTO.getEmail());
+        System.out.println("User Found: " + userOptional.isPresent());
 
-        if (userOptional.isEmpty()) {
-            System.out.println("User not found for email: " + loginDTO.getEmail());
-            throw new RuntimeException("User not found");
+        if (userOptional.isPresent()) {
+            AuthUser user = userOptional.get();
+
+            if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+                return "Invalid Credentials";
+            }
+
+            String token = jwtUtil.generateToken(loginDTO.getEmail());
+            System.out.println("Generated Token: " + token);
+
+            if (token != null && !token.isEmpty()) {
+                String subject = "Login Alert - Your Account";
+                String body = "<h3>Dear " + user.getFirstName() + ",</h3>"
+                        + "<p>Your account was just accessed.</p>"
+                        + "<p>If this was not you, please reset your password immediately.</p>"
+                        + "<p>Best regards, <br> Lauda leleeee</p>";
+
+                boolean emailSent = emailService.sendEmail(user.getEmail(), subject, body);
+                System.out.println("Email Sent: " + emailSent);
+
+                return "Login Successful\n" + token;
+            }
         }
-
-        AuthUser user = userOptional.get();
-        System.out.println("User found: " + user.getEmail());
-
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
-
-        return jwtUtil.generateToken(user.getEmail());
+        return "Invalid Credentials";
     }
 }
+
+
+
+
